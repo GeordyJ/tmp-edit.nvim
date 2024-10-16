@@ -20,11 +20,9 @@ changes are synced back to the original file.
 This plugin is in active development and may not work as intended, do not use it
 for critical files.
 
-This plugin may interfere with some LSPs, it tries to avoid this by restarting
-the LSPs. There is still some issues for LSPs when the original file is from
-sshfs, but it appears to work if the original file is in the local machine.
-If LSP integration is import see GeordyJ/tmp-edit (bash script) which works
-for single file editing.
+This plugin restarts the LSPs for editing the tmp-file to prevent errors and lags
+when the LSPs is set to the sshfs mounted path. The LSPs works fine but it may
+not carry the user LSP config and instead use the default config.
 
 This plugin simply copys the written file back to the orignal file, if there are
 changes in the orignal file while in tmp-edit, the changes **WILL** be overwritten.
