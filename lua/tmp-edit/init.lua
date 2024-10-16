@@ -5,7 +5,9 @@ local M = {}
 
 local tmp_files = {}
 local autocmd_ids = {}
+local cursor_positions = {}
 local original_pwd = vim.fn.getcwd()
+
 local verbose = false
 
 local function get_tmp_dir()
@@ -42,10 +44,16 @@ M.start_edit_in_tmp = function()
 	local original_file_path = vim.fn.expand("%:p")
 	local tmp_file_path = copy_to_tmp(original_file_path)
 
+	cursor_positions[original_file_path] = vim.api.nvim_win_get_cursor(0)
+
 	local tmp_dir = get_tmp_dir()
 	vim.api.nvim_set_current_dir(tmp_dir)
 	vim.api.nvim_command("edit " .. tmp_file_path)
 	vim.api.nvim_command("bdelete! #")
+
+	if cursor_positions[original_file_path] then
+		vim.api.nvim_win_set_cursor(0, cursor_positions[original_file_path])
+	end
 
 	local clients = vim.lsp.buf_get_clients(0)
 	for _, client in ipairs(clients) do
@@ -88,9 +96,14 @@ M.stop_edit_in_tmp = function()
 	if vim.startswith(current_file_path, tmp_dir) then
 		local original_file_path = tmp_files[current_file_path]
 		if original_file_path then
+			cursor_positions[current_file_path] = vim.api.nvim_win_get_cursor(0)
 			vim.api.nvim_set_current_dir(original_pwd)
 			vim.api.nvim_command("edit " .. original_file_path)
 			vim.api.nvim_command("bdelete! #")
+
+			if cursor_positions[current_file_path] then
+				vim.api.nvim_win_set_cursor(0, cursor_positions[current_file_path])
+			end
 
 			local autocmd_id = autocmd_ids[current_file_path]
 			if autocmd_id then
