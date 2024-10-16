@@ -3,6 +3,7 @@ local M = {}
 local tmp_files = {}
 local autocmd_ids = {}
 local original_pwd = vim.fn.getcwd()
+local verbose = false
 
 local function get_tmp_dir()
 	return os.getenv("TMPDIR") or "/tmp"
@@ -29,7 +30,9 @@ local function sync_back(tmp_file_path, original_file_path)
 	if not ok then
 		error("Failed to sync file back to original: " .. err)
 	end
-	print("File synced back to original: " .. original_file_path)
+	if verbose then
+		print("File synced back to original: " .. original_file_path)
+	end
 end
 
 M.start_edit_in_tmp = function()
@@ -70,7 +73,9 @@ M.start_edit_in_tmp = function()
 
 	autocmd_ids[tmp_file_path] = autocmd_id
 
-	print("Editing in temp directory: " .. tmp_dir)
+	if verbose then
+		print("Editing in temp directory: " .. tmp_dir)
+	end
 end
 
 M.stop_edit_in_tmp = function()
@@ -88,10 +93,14 @@ M.stop_edit_in_tmp = function()
 			if autocmd_id then
 				vim.api.nvim_del_autocmd(autocmd_id)
 				autocmd_ids[current_file_path] = nil
-				print("Autocmd removed for: " .. current_file_path)
+				if verbose then
+					print("Autocmd removed for: " .. current_file_path)
+				end
 			end
 
-			print("Switched back to original file and directory: " .. original_file_path)
+			if verbose then
+				print("Switched back to original file and directory: " .. original_file_path)
+			end
 		else
 			print("Original file path not found for: " .. current_file_path)
 		end
