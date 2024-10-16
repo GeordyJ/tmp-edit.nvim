@@ -7,16 +7,11 @@ local function get_tmp_dir()
 	return os.getenv("TMPDIR") or "/tmp"
 end
 
-local function generate_timestamp()
-	return os.date("%Y%m%d_%H%M%S")
-end
-
 local function copy_to_tmp(file_path)
 	local tmp_dir = get_tmp_dir()
-	local timestamp = generate_timestamp()
 
-	local tmp_file_name = vim.fn.fnamemodify(file_path, ":t") .. "_" .. timestamp
-	local tmp_file_path = tmp_dir .. "/" .. tmp_file_name
+	local tmp_file_name = vim.fn.fnamemodify(file_path, ":t")
+	local tmp_file_path = tmp_dir .. "/" .. os.date("%Y%m%d_%H%M%S") .. "_" .. tmp_file_name
 
 	local ok, err = vim.loop.fs_copyfile(file_path, tmp_file_path)
 	if not ok then
