@@ -110,7 +110,9 @@ M.stop_edit_in_tmp = function()
 end
 
 M.setup = function(opts)
-	print("work in progress, opts: ", opts)
+	if opts["verbose"] == true then
+		verbose = true
+	end
 end
 
 return M

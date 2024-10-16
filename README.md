@@ -32,11 +32,14 @@ To install and add the keyamps in using lazy.nvim
 ```lua
 return {
   "GeordyJ/tmp-edit.nvim",
-  lazy = true,
+  lazy = true, -- Lazy loading, activate plugin with keymap
 
+  config = function(_, opts)
+    require("tmp-edit").setup({ verbose = false }) --default
+  end,
   keys = {
     {
-      "<leader>gt", -- set your preffered keymaps
+      "<leader>gt",
       function()
         require("tmp-edit").start_edit_in_tmp()
       end,
