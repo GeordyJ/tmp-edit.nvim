@@ -45,14 +45,14 @@ M.start_edit_in_tmp = function()
 	local tmp_dir = get_tmp_dir()
 	vim.api.nvim_set_current_dir(tmp_dir)
 	vim.api.nvim_command("edit " .. tmp_file_path)
-	vim.api.nvim_command("bdelete #")
+	vim.api.nvim_command("bdelete! #")
 
 	local clients = vim.lsp.buf_get_clients(0)
 	for _, client in ipairs(clients) do
 		vim.lsp.buf_detach_client(0, client.id)
 	end
 
-	local root_dir = vim.fn.fnamemodify(original_file_path, ":h")
+	local root_dir = vim.fn.fnamemodify(tmp_file_path, ":h")
 
 	for _, client in ipairs(vim.lsp.get_active_clients()) do
 		local new_client = vim.lsp.start_client({
@@ -90,7 +90,7 @@ M.stop_edit_in_tmp = function()
 		if original_file_path then
 			vim.api.nvim_set_current_dir(original_pwd)
 			vim.api.nvim_command("edit " .. original_file_path)
-			vim.api.nvim_command("bdelete #")
+			vim.api.nvim_command("bdelete! #")
 
 			local autocmd_id = autocmd_ids[current_file_path]
 			if autocmd_id then
