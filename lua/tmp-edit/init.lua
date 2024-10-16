@@ -1,3 +1,6 @@
+-- Author: Geordy Jomon
+-- WARNING: This is still work in progress, see the README for more details
+
 local M = {}
 
 local tmp_files = {}

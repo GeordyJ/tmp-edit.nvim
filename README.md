@@ -20,7 +20,11 @@ changes are synced back to the original file.
 This plugin is in active development and may not work as intended, do not use it
 for critical files.
 
-This plugin may intefere with some LSPs like Ruff
+This plugin may interfere with some LSPs, it tries to avoid this by restarting
+the LSPs. There is still some issues for LSPs when the original file is from
+sshfs, but it appears to work if the original file is in the local machine.
+If LSP integration is import see GeordyJ/tmp-edit (bash script) which works
+for single file editing.
 
 This plugin simply copys the written file back to the orignal file, if there are
 changes in the orignal file while in tmp-edit, the changes **WILL** be overwritten.
@@ -43,14 +47,14 @@ return {
       function()
         require("tmp-edit").start_edit_in_tmp()
       end,
-      desc = "Temp Edit",
+      desc = "Start Temp Edit",
     },
     {
       "<leader>go",
       function()
         require("tmp-edit").stop_edit_in_tmp()
       end,
-      desc = "Orignal Edit",
+      desc = "Stop Temp Edit",
     },
   },
 }
