@@ -19,7 +19,7 @@ local function copy_to_tmp(file_path)
 	local tmp_file_name = vim.fn.fnamemodify(file_path, ":t")
 	local tmp_file_path = tmp_dir .. "/" .. os.date("%Y%m%d_%H%M%S") .. "_" .. tmp_file_name
 
-	local ok, err = vim.loop.fs_copyfile(file_path, tmp_file_path)
+	local ok, err = vim.uv.fs_copyfile(file_path, tmp_file_path)
 	if not ok then
 		error("Failed to copy file to temp: " .. err)
 	end
@@ -30,7 +30,7 @@ local function copy_to_tmp(file_path)
 end
 
 local function sync_back(tmp_file_path, original_file_path)
-	local ok, err = vim.loop.fs_copyfile(tmp_file_path, original_file_path)
+	local ok, err = vim.uv.fs_copyfile(tmp_file_path, original_file_path)
 	if not ok then
 		error("Failed to sync file back to original: " .. err)
 	end
@@ -54,23 +54,23 @@ M.start_edit_in_tmp = function()
 		vim.api.nvim_win_set_cursor(0, cursor_positions[original_file_path])
 	end
 
-	local clients = vim.lsp.buf_get_clients(0)
+	local clients = vim.lsp.get_clients({ buffer = 0 })
 	for _, client in ipairs(clients) do
 		vim.lsp.buf_detach_client(0, client.id)
 	end
 
 	local root_dir = vim.fn.fnamemodify(tmp_file_path, ":h")
 
-	for _, client in ipairs(vim.lsp.get_active_clients()) do
+	for _, client in ipairs(vim.lsp.get_clients()) do
 		local new_client = vim.lsp.start_client({
 			name = client.name,
 			cmd = client.config.cmd,
 			root_dir = root_dir,
-			filetypes = client.config.filetypes,
 			capabilities = client.config.capabilities,
+			settings = client.settings,
 		})
 
-		vim.lsp.buf_attach_client(0, new_client)
+		vim.lsp.buf_attach_client(0, new_client or 0)
 	end
 
 	local autocmd_id = vim.api.nvim_create_autocmd("BufWritePost", {
