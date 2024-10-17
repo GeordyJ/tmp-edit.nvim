@@ -35,7 +35,7 @@ local function sync_back(tmp_file_path, original_file_path)
 		error("Failed to sync file back to original: " .. err)
 	end
 	if verbose then
-		print("File synced back to original: " .. original_file_path)
+		print("File synced: " .. original_file_path)
 	end
 end
 
@@ -78,13 +78,13 @@ M.start_edit_in_tmp = function()
 		callback = function()
 			sync_back(tmp_file_path, original_file_path)
 		end,
-		desc = "Sync the file back to the original location after saving",
+		desc = "tmp-edit: Sync the file back to the original location after saving",
 	})
 
 	autocmd_ids[tmp_file_path] = autocmd_id
 
 	if verbose then
-		print("Editing in temp directory: " .. tmp_dir)
+		print("Editing: " .. tmp_dir)
 	end
 end
 
@@ -109,12 +109,12 @@ M.stop_edit_in_tmp = function()
 				vim.api.nvim_del_autocmd(autocmd_id)
 				autocmd_ids[current_file_path] = nil
 				if verbose then
-					print("Autocmd removed for: " .. current_file_path)
+					print("Autocmd removed: " .. current_file_path)
 				end
 			end
 
 			if verbose then
-				print("Switched back to original file and directory: " .. original_file_path)
+				print("Editing original: " .. original_file_path)
 			end
 		else
 			print("Original file path not found for: " .. current_file_path)

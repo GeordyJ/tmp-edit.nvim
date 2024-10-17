@@ -23,6 +23,9 @@ for critical files.
 This plugin restarts the LSPs for editing the temp file to prevent errors and lags
 when the LSPs is set to the sshfs mounted path.
 
+There is a issue with using LSPs for different languages which may conflict with
+the editing of temp file, when they are in the same neovim instance
+
 This plugin simply copies the written file back to the original file, if there are
 changes in the original file while in tmp-edit, the changes **WILL** be overwritten.
 
