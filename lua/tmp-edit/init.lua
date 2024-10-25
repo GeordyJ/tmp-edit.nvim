@@ -1,4 +1,5 @@
 -- Author: Geordy Jomon
+-- GeordyJ/tmp-edit.nvim: edit files in $TMPDIR
 
 local M = {}
 
@@ -8,6 +9,12 @@ local cursor_positions = {}
 local original_pwd = vim.fn.getcwd()
 
 local verbose = false
+
+M.setup = function(opts)
+	if opts["verbose"] == true then
+		verbose = true
+	end
+end
 
 local function get_tmp_dir()
 	return os.getenv("TMPDIR") or "/tmp"
@@ -35,7 +42,7 @@ local function sync_back(tmp_file_path, original_file_path)
 		error("Failed to sync file back to original: " .. err)
 	end
 	if verbose then
-		print("File synced: " .. original_file_path)
+		print("Synced: " .. original_file_path)
 	end
 end
 
@@ -56,7 +63,9 @@ M.start_edit_in_tmp = function()
 
 	local clients = vim.lsp.get_clients({ buffer = 0 })
 	for _, client in ipairs(clients) do
-		vim.lsp.buf_detach_client(0, client.id)
+		if not pcall(vim.lsp.buf_detach_client, { 0, client.id }) then
+			print("Client not attached to buffer")
+		end
 	end
 
 	local root_dir = vim.fn.fnamemodify(tmp_file_path, ":h")
@@ -114,19 +123,13 @@ M.stop_edit_in_tmp = function()
 			end
 
 			if verbose then
-				print("Editing original: " .. original_file_path)
+				print("Editing: " .. original_file_path)
 			end
 		else
-			print("Original file path not found for: " .. current_file_path)
+			error("Original file path not found for: " .. current_file_path)
 		end
 	else
 		print("Not editing a file in temp directory.")
-	end
-end
-
-M.setup = function(opts)
-	if opts["verbose"] == true then
-		verbose = true
 	end
 end
 

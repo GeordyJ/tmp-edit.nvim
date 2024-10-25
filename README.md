@@ -38,8 +38,9 @@ return {
   "GeordyJ/tmp-edit.nvim",
   lazy = true,
 
+  -- Default Options
   opts = {
-    verbose = false, --default
+    verbose = false,
   },
 
   keys = {
