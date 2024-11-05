@@ -15,6 +15,8 @@ changes are synced back to the original file.
 
 `stop_edit_in_tmp` changes the buffer back to the original file.
 
+One can use `toggle_edit_in_tmp` to toggle the above functions for ease.
+
 ## Note
 
 This plugin is in active development and may not work as intended, do not use it
@@ -37,26 +39,17 @@ To install and add the keymaps in using [lazy.nvim](https://lazy.folke.io/)
 return {
   "GeordyJ/tmp-edit.nvim",
   lazy = true,
-
-  -- Default Options
   opts = {
-    verbose = false,
+    verbose = true,
   },
 
   keys = {
     {
       "<leader>gt",
       function()
-        require("tmp-edit").start_edit_in_tmp()
+        require("tmp-edit").toggle_edit_in_tmp() -- or use start_edit_in_tmp and stop_edit_in_tmp
       end,
-      desc = "Temp Edit",
-    },
-    {
-      "<leader>go",
-      function()
-        require("tmp-edit").stop_edit_in_tmp()
-      end,
-      desc = "Orignal Edit",
+      desc = "Toggle Temp Edit",
     },
   },
 }

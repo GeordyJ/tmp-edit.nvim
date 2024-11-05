@@ -139,4 +139,15 @@ M.stop_edit_in_tmp = function()
 	end
 end
 
+M.toggle_edit_in_tmp = function()
+	local current_file_path = vim.fn.expand("%:p")
+	local tmp_dir = get_tmp_dir()
+
+	if vim.startswith(current_file_path, tmp_dir) then
+		M.stop_edit_in_tmp()
+	else
+		M.start_edit_in_tmp()
+	end
+end
+
 return M
