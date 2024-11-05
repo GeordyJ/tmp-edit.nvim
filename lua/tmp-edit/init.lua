@@ -46,6 +46,12 @@ local function sync_back(tmp_file_path, original_file_path)
 	end
 end
 
+local function schedule_sync_back(tmp_file_path, original_file_path)
+	vim.schedule(function()
+		sync_back(tmp_file_path, original_file_path)
+	end)
+end
+
 M.start_edit_in_tmp = function()
 	local original_file_path = vim.fn.expand("%:p")
 	local tmp_file_path = copy_to_tmp(original_file_path)
@@ -85,7 +91,7 @@ M.start_edit_in_tmp = function()
 	local autocmd_id = vim.api.nvim_create_autocmd("BufWritePost", {
 		buffer = 0,
 		callback = function()
-			sync_back(tmp_file_path, original_file_path)
+			schedule_sync_back(tmp_file_path, original_file_path)
 		end,
 		desc = "tmp-edit: Sync the file back to the original location after saving",
 	})
