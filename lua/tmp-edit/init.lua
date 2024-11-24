@@ -5,8 +5,12 @@ local M = {}
 
 ---@class TmpEditConfig
 ---@field verbose boolean
+---@field set_timestep boolean
+---@field tmp_dir string
 local DEFAULT_CONFIG = {
 	verbose = false,
+	set_timestep = true,
+	tmp_dir = os.getenv("TMPDIR") or "/tmp",
 }
 
 local state = {
@@ -28,18 +32,20 @@ local function log(msg)
 	end
 end
 
+---@param file_path string
 ---@return string
-local function get_tmp_dir()
-	return os.getenv("TMPDIR") or "/tmp"
+local function generate_tmp_filename(file_path)
+	local tmp_file_name = vim.fn.fnamemodify(file_path, ":t")
+	if state.config.set_timestep then
+		return string.format("%s/%s_%s", state.config.tmp_dir, os.date("%Y%m%d_%H%M%S"), tmp_file_name)
+	end
+	return string.format("%s/%s", state.config.tmp_dir, tmp_file_name)
 end
 
 ---@param file_path string
 ---@return string tmp_file_path
 local function copy_to_tmp(file_path)
-	local tmp_dir = get_tmp_dir()
-	local tmp_file_name = vim.fn.fnamemodify(file_path, ":t")
-	local timestamp = os.date("%Y%m%d_%H%M%S")
-	local tmp_file_path = string.format("%s/%s_%s", tmp_dir, timestamp, tmp_file_name)
+	local tmp_file_path = generate_tmp_filename(file_path)
 
 	local ok, err = vim.uv.fs_copyfile(file_path, tmp_file_path)
 	if not ok then
@@ -115,8 +121,7 @@ M.start_edit_in_tmp = function()
 
 	save_cursor_position(original_file_path)
 
-	local tmp_dir = get_tmp_dir()
-	vim.api.nvim_set_current_dir(tmp_dir)
+	vim.api.nvim_set_current_dir(state.config.tmp_dir)
 
 	-- Switch to temp file
 	vim.cmd(string.format("edit %s", tmp_file_path))
@@ -136,14 +141,13 @@ M.start_edit_in_tmp = function()
 	})
 
 	state.autocmd_ids[tmp_file_path] = autocmd_id
-	log(string.format("Editing in: %s", tmp_dir))
+	log(string.format("Editing in: %s", state.config.tmp_dir))
 end
 
 M.stop_edit_in_tmp = function()
 	local current_file_path = vim.fn.expand("%:p")
-	local tmp_dir = get_tmp_dir()
 
-	if not vim.startswith(current_file_path, tmp_dir) then
+	if not vim.startswith(current_file_path, state.config.tmp_dir) then
 		vim.notify("Not editing a file in temp directory.", vim.log.levels.WARN)
 		return
 	end
@@ -176,9 +180,8 @@ end
 
 M.toggle_edit_in_tmp = function()
 	local current_file_path = vim.fn.expand("%:p")
-	local tmp_dir = get_tmp_dir()
 
-	if vim.startswith(current_file_path, tmp_dir) then
+	if vim.startswith(current_file_path, state.config.tmp_dir) then
 		M.stop_edit_in_tmp()
 	else
 		M.start_edit_in_tmp()
