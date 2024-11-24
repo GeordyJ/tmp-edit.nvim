@@ -13,6 +13,7 @@ local DEFAULT_CONFIG = {
 	tmp_dir = os.getenv("TMPDIR") or "/tmp",
 }
 
+-- Stores the state for tmp-edit.nvim
 local state = {
 	tmp_files = {},
 	autocmd_ids = {},
@@ -22,6 +23,7 @@ local state = {
 }
 
 ---@param opts TmpEditConfig?
+---Setup function for tmp_edit.nvim
 M.setup = function(opts)
 	state.config = vim.tbl_deep_extend("force", DEFAULT_CONFIG, opts or {})
 end
@@ -115,6 +117,7 @@ local function restore_cursor_position(file_path)
 	end
 end
 
+--Start editing current open buffer in temp dir while restaring LSPs
 M.start_edit_in_tmp = function()
 	local original_file_path = vim.fn.expand("%:p")
 	local tmp_file_path = copy_to_tmp(original_file_path)
@@ -144,6 +147,7 @@ M.start_edit_in_tmp = function()
 	log(string.format("Editing in: %s", state.config.tmp_dir))
 end
 
+--Stop editing in tempfile and switch to orignal
 M.stop_edit_in_tmp = function()
 	local current_file_path = vim.fn.expand("%:p")
 
@@ -178,6 +182,7 @@ M.stop_edit_in_tmp = function()
 	log(string.format("Editing: %s", original_file_path))
 end
 
+--Interface to toggle tmp-edit.nvim
 M.toggle_edit_in_tmp = function()
 	local current_file_path = vim.fn.expand("%:p")
 
