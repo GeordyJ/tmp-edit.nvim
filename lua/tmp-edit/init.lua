@@ -1,4 +1,4 @@
--- Author: Geordy Jomon
+-- Author: Geordy Jomon gj82@njit.edu
 -- GeordyJ/tmp-edit.nvim: edit files in $TMPDIR
 
 local M = {}

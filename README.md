@@ -39,12 +39,6 @@ To install and add the keymaps in using [lazy.nvim](https://lazy.folke.io/)
 return {
   "GeordyJ/tmp-edit.nvim",
   lazy = true,
-  opts = { --default options
-    verbose = false,
-    set_timestep = true,
-    tmp_dir = os.getenv("TMPDIR") or "/tmp",
-  },
-
   keys = {
     {
       "<leader>gt", --change it to your liking
@@ -55,4 +49,17 @@ return {
     },
   },
 }
+```
+
+## Configuration
+
+The default options are shown below.
+
+```lua
+  opts = {
+    verbose = false,
+    set_timestep = true,
+    tmp_dir = os.getenv("TMPDIR") or "/tmp",
+  },
+
 ```
