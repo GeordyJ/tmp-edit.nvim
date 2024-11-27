@@ -22,14 +22,16 @@ One can use `toggle_edit_in_tmp` to toggle the above functions for ease.
 This plugin is in active development and may not work as intended, do not use it
 for critical files.
 
+This plugin simply copies the written file back to the original file, if there are
+changes in the original file while in tmp-edit, the changes **WILL** be overwritten.
+
 This plugin restarts the LSPs for editing the temp file to prevent errors and lags
 when the LSPs is set to the sshfs mounted path.
 
 There is a issue with using LSPs for different languages which may conflict with
-the editing of temp file, when they are in the same neovim instance
-
-This plugin simply copies the written file back to the original file, if there are
-changes in the original file while in tmp-edit, the changes **WILL** be overwritten.
+the editing of temp file, when they are in the same neovim instance. Editing more
+than one file in a instance causes a debug message to pop up. However, it dose not
+seem to affect the usage of the plugin.
 
 ## Installation
 
@@ -39,6 +41,9 @@ To install and add the keymaps in using [lazy.nvim](https://lazy.folke.io/)
 return {
   "GeordyJ/tmp-edit.nvim",
   lazy = true,
+  opts = {
+    -- See Configuration for details
+  },
   keys = {
     {
       "<leader>gt", --change it to your liking
@@ -57,7 +62,7 @@ The default options are shown below.
 
 ```lua
   opts = {
-    verbose = false,
+    verbose = true,
     set_timestep = true,
     tmp_dir = os.getenv("TMPDIR") or "/tmp",
   },

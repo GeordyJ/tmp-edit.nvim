@@ -8,7 +8,7 @@ local M = {}
 ---@field set_timestep boolean
 ---@field tmp_dir string
 local DEFAULT_CONFIG = {
-	verbose = false,
+	verbose = true,
 	set_timestep = true,
 	tmp_dir = os.getenv("TMPDIR") or "/tmp",
 }
@@ -80,9 +80,9 @@ end
 local function detach_lsp_clients(buffer)
 	local clients = vim.lsp.get_clients({ buffer = buffer })
 	for _, client in ipairs(clients) do
-		local ok = pcall(vim.lsp.buf_detach_client, buffer, client.id)
+		local ok, err = pcall(vim.lsp.buf_detach_client, buffer, client.id)
 		if not ok then
-			log("Failed to detach LSP client")
+			log(string.format("Failed to detach LSP client %s", err))
 		end
 	end
 end
