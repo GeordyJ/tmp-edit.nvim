@@ -90,7 +90,7 @@ end
 ---@param buffer number
 ---@param root_dir string
 local function attach_new_lsp_clients(buffer, root_dir)
-	for _, client in ipairs(vim.lsp.get_active_clients()) do
+	for _, client in ipairs(vim.lsp.get_clients()) do
 		local new_client = vim.lsp.start_client({
 			name = client.name,
 			cmd = client.config.cmd,
