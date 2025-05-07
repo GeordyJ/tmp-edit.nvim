@@ -6,11 +6,12 @@ local M = {}
 ---@class TmpEditConfig
 ---@field verbose boolean
 ---@field set_timestep boolean
----@field tmp_dir string
+---@field temporary_file_dir string
 local DEFAULT_CONFIG = {
 	verbose = true,
 	set_timestep = true,
-	tmp_dir = os.getenv("TMPDIR") or "/tmp",
+	temporary_file_dir = os.getenv("TMPDIR") or "/tmp",
+	delete_temporary_file = false,
 }
 
 -- Stores the state for tmp-edit.nvim
@@ -39,9 +40,9 @@ end
 local function generate_tmp_filename(file_path)
 	local tmp_file_name = vim.fn.fnamemodify(file_path, ":t")
 	if state.config.set_timestep then
-		return string.format("%s/%s_%s", state.config.tmp_dir, os.date("%Y%m%d_%H%M%S"), tmp_file_name)
+		return string.format("%s/%s_%s", state.config.temporary_file_dir, os.date("%Y%m%d_%H%M%S"), tmp_file_name)
 	end
-	return string.format("%s/%s", state.config.tmp_dir, tmp_file_name)
+	return string.format("%s/%s", state.config.temporary_file_dir, tmp_file_name)
 end
 
 ---@param file_path string
@@ -91,7 +92,7 @@ end
 ---@param root_dir string
 local function attach_new_lsp_clients(buffer, root_dir)
 	for _, client in ipairs(vim.lsp.get_clients()) do
-		local new_client = vim.lsp.start_client({
+		local new_client = vim.lsp.start({
 			name = client.name,
 			cmd = client.config.cmd,
 			root_dir = root_dir,
@@ -124,7 +125,7 @@ M.start_edit_in_tmp = function()
 
 	save_cursor_position(original_file_path)
 
-	vim.api.nvim_set_current_dir(state.config.tmp_dir)
+	vim.api.nvim_set_current_dir(state.config.temporary_file_dir)
 
 	-- Switch to temp file
 	vim.cmd(string.format("edit %s", tmp_file_path))
@@ -144,14 +145,14 @@ M.start_edit_in_tmp = function()
 	})
 
 	state.autocmd_ids[tmp_file_path] = autocmd_id
-	log(string.format("Editing in: %s", state.config.tmp_dir))
+	log(string.format("Editing in: %s", state.config.temporary_file_dir))
 end
 
 --Stop editing in tempfile and switch to orignal
 M.stop_edit_in_tmp = function()
 	local current_file_path = vim.fn.expand("%:p")
 
-	if not vim.startswith(current_file_path, state.config.tmp_dir) then
+	if not vim.startswith(current_file_path, state.config.temporary_file_dir) then
 		vim.notify("Not editing a file in temp directory.", vim.log.levels.WARN)
 		return
 	end
@@ -179,6 +180,19 @@ M.stop_edit_in_tmp = function()
 		log(string.format("Autocmd removed: %s", current_file_path))
 	end
 
+	-- Clear state entries
+	state.tmp_files[current_file_path] = nil
+	state.cursor_positions[current_file_path] = nil
+
+	if state.config.delete_temporary_file then
+		local ok, err = vim.loop.fs_unlink(current_file_path)
+		if not ok then
+			log(string.format("Failed to delete temporary file: %s", err))
+		else
+			log(string.format("Deleted temporary: %s", current_file_path))
+		end
+	end
+
 	log(string.format("Editing: %s", original_file_path))
 end
 
@@ -186,7 +200,7 @@ end
 M.toggle_edit_in_tmp = function()
 	local current_file_path = vim.fn.expand("%:p")
 
-	if vim.startswith(current_file_path, state.config.tmp_dir) then
+	if vim.startswith(current_file_path, state.config.temporary_file_dir) then
 		M.stop_edit_in_tmp()
 	else
 		M.start_edit_in_tmp()

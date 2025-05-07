@@ -20,7 +20,7 @@ One can use `toggle_edit_in_tmp` to toggle the above functions for ease.
 ## Note
 
 This plugin is in active development and may not work as intended, do not use it
-for critical files.
+for critical files. If doing so, make sure to create backups.
 
 This plugin simply copies the written file back to the original file, if there are
 changes in the original file while in tmp-edit, the changes **WILL** be overwritten.
@@ -28,7 +28,7 @@ changes in the original file while in tmp-edit, the changes **WILL** be overwrit
 This plugin restarts the LSPs for editing the temp file to prevent errors and lags
 when the LSPs is set to the sshfs mounted path.
 
-There is a issue with using LSPs for different languages which may conflict with
+There is a issue with using LSPs for **different languages** which may conflict with
 the editing of temp file, when they are in the same neovim instance. Editing more
 than one file in a instance causes a debug message to pop up. However, it dose not
 seem to affect the usage of the plugin.
@@ -64,6 +64,7 @@ The default options are shown below.
   opts = {
     verbose = true,
     set_timestep = true,
+    delete_temporary_file = false,
     tmp_dir = os.getenv("TMPDIR") or "/tmp",
   },
 
